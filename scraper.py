@@ -41,9 +41,9 @@ def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 
     Selenium middleware will operate on.'''
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument('--no-sandbox')
-    # chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
 
     browser = webdriver.Chrome(chrome_options=chrome_options)
     browser.get(homeURL)

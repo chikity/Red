@@ -11,7 +11,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from interface import fileReader, dataPorter
 
+'''Specifying the species file that is being read by the script'''
 speciesFile = 'data/birds.csv'
+'''This is the home URL that will be used as a starting point for the scrape to start'''
 homeURL = 'https://www.iucnredlist.org/'
 
 '''Grabbing the species dataframe from the interface.py script'''
@@ -20,20 +22,35 @@ speciesDf = fileReader(speciesFile)
 '''Grabbing the number and the entire list of species in a given .csv file'''
 numberOfSpecies, listOfSpecies = dataPorter(speciesDf)
 
+def urlTweaker(speciesName, homeURL):
+    '''This function takes the species name, lysis it and appends it to the home URL for scrapping'''
+    urlPreElement = "https://www.iucnredlist.org/search?query="
+    urlPostElement = "&searchType=species"
+    speciesNameElements = speciesName.split(' ')
+    speciesSearchURL = urlPreElement + speciesNameElements[0]+'%20'+speciesNameElements[1]+urlPostElement
+    return speciesSearchURL
+
+def speciesURLExtractor(searchSoup, homeURL):
+    '''From the search page of the species, we collect the URL which will lead us to the species database'''
+    speciesURL = searchSoup.find('a', {'class':'link--faux'}).get('href')
+    speciesURL = homeURL + speciesURL
+    print(speciesURL)
+    return speciesURL
+
 def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 
     Selenium middleware will operate on.'''
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
+    # chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--no-sandbox')
+    # chrome_options.add_argument('--disable-dev-shm-usage')
 
     browser = webdriver.Chrome(chrome_options=chrome_options)
+    browser.get(homeURL)
     return browser
 
-def htmlExtractor(browser, url):
+def htmlExtractor(browser):
     '''Pings the browser and returns the HTML code to be used by the rest of the functions lying within the for loop below'''
-    browser.get(url)
     htmlCode = browser.page_source
     return htmlCode
 
@@ -46,6 +63,7 @@ def pageSouper(htmlCode):
 In case the code shutsdown in between the scrapping, we don't want to start from scratch.'''
 speciesCounter = 0
 
+'''Generating the browser instance here'''
 browser = browserInitializer(homeURL)
 
 for speciesCounter in range(speciesCounter, numberOfSpecies):
@@ -59,6 +77,30 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     '''Here, we collect the name of the species for which the data has to be scrapped. We then pass this name onto the urlTweaker to insert it into the 
     default IUCN website URL.'''
     speciesName = speciesDf.loc[speciesCounter, 'species']
-    
+
+    '''Using the species name to arrive at the URL to ping the browser'''
+    speciesSearchURL = urlTweaker(speciesName, homeURL)
+
+    '''Invoking the search results page here using the browser'''
+    browser.get(speciesSearchURL)
+
+    '''Extracting the HTML code'''
+    htmlSearchCode = htmlExtractor(browser)
+
+    '''Souping the HTML here to make it more readable and look for elements within'''
+    searchSoup = pageSouper(htmlSearchCode)
+
+    '''From the search result of the species we collect the URL which will direct us to the species database'''
+    speciesURL = speciesURLExtractor(searchSoup, homeURL)
+
+    '''Here, we get the page containing all the information of a specific species'''
+    browser.get(speciesURL)
+
+    '''Now extracting the HTML of the page'''
+    htmlCode = htmlExtractor(browser)
+
+    '''Souping the page!'''
+    speciesSoup = pageSouper(htmlCode)
+
     '''Appennding the species counter to go to the next species on the list, in case the code breaksdown prematurely'''
-    speciesCounter+=1
+    speciesCounter += 1

@@ -6,6 +6,7 @@ The eventual goal is to interface this code to a script communicating with the G
 -Sarthak
 (18/02/2020)'''
 
+import time
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -14,7 +15,7 @@ from interface import fileReader, dataPorter
 '''Specifying the species file that is being read by the script'''
 speciesFile = 'data/birds.csv'
 '''This is the home URL that will be used as a starting point for the scrape to start'''
-homeURL = 'https://www.iucnredlist.org/'
+homeURL = 'https://www.iucnredlist.org'
 
 '''Grabbing the species dataframe from the interface.py script'''
 speciesDf = fileReader(speciesFile)
@@ -81,8 +82,12 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     '''Using the species name to arrive at the URL to ping the browser'''
     speciesSearchURL = urlTweaker(speciesName, homeURL)
 
+
     '''Invoking the search results page here using the browser'''
     browser.get(speciesSearchURL)
+
+    '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
+    time.sleep(5)
 
     '''Extracting the HTML code'''
     htmlSearchCode = htmlExtractor(browser)
@@ -92,9 +97,12 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''From the search result of the species we collect the URL which will direct us to the species database'''
     speciesURL = speciesURLExtractor(searchSoup, homeURL)
-
+    
     '''Here, we get the page containing all the information of a specific species'''
     browser.get(speciesURL)
+
+    '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
+    time.sleep(5)
 
     '''Now extracting the HTML of the page'''
     htmlCode = htmlExtractor(browser)

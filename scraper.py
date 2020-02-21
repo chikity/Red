@@ -18,10 +18,10 @@ speciesFile = 'data/birds.csv'
 homeURL = 'https://www.iucnredlist.org'
 
 '''Grabbing the species dataframe from the interface.py script'''
-speciesDf = fileReader(speciesFile)
+speciesDF = fileReader(speciesFile)
 
 '''Grabbing the number and the entire list of species in a given .csv file'''
-numberOfSpecies, listOfSpecies, threatsAndStressesColumns = dataPorter(speciesDf)
+numberOfSpecies, listOfSpecies, threatsAndStressesColumns = dataPorter(speciesDF)
 
 def urlTweaker(speciesName, homeURL):
     '''This function takes the species name, lysis it and appends it to the home URL for scrapping'''
@@ -61,15 +61,19 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
     '''Finally! We plot the threats and stresses observed on the dataframe for the corresponding species and column'''
     for threatsAndStress in threatsAndStresses:
         speciesDF.loc[speciesCounter, threatsAndStress] = 1
-    speciesDF.to_csv('hello.csv')
+    return speciesDF
+
+def csvDumper(speciesFile, speciesDF):
+    '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
+    speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv')
 
 def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 
     Selenium middleware will operate on.'''
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument('--no-sandbox')
-    # chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(chrome_options=chrome_options)
     browser.get(homeURL)
     print('[INFO] Initializing browser instance')
@@ -104,7 +108,7 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Here, we collect the name of the species for which the data has to be scrapped. We then pass this name onto the urlTweaker to insert it into the 
     default IUCN website URL.'''
-    speciesName = speciesDf.loc[speciesCounter, 'species']
+    speciesName = speciesDF.loc[speciesCounter, 'species']
 
     '''Using the species name to arrive at the URL to ping the browser'''
     speciesSearchURL = urlTweaker(speciesName, homeURL)
@@ -143,7 +147,10 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     threatsAndStresses = threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns)
 
     '''Here we plot binary transformations under the corresponding threats/stresses column of the pandas dataframe for each species'''
-    threatsAndStressesPlotter(speciesDf, speciesCounter, threatsAndStresses)
+    speciesDF = threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses)
+
+    '''Writing a .csv dumper here so that we can check the output after each run'''
+    csvDumper(speciesFile, speciesDF)
 
     '''Appennding the species counter to go to the next species on the list, in case the code breaksdown prematurely'''
     speciesCounter += 1

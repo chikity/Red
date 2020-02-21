@@ -39,6 +39,17 @@ def speciesURLExtractor(searchSoup, homeURL):
     print('[INFO] Currently looking at species URL:' + speciesURL)
     return speciesURL
 
+def threatsTextsExtractor(speciesSoup):
+    '''This function returns the text of the threats faced by each of the species'''
+    threatsCards = speciesSoup.findAll('div', {'id':'threats-details'})
+    for threatsCard in threatsCards:
+        return threatsCard.findAll('div', {'class':'text-body'})[0].text
+
+def threatsTextsPlotter(speciesDF, speciesCounter, threatsText):
+    '''Writing the text extracted by the threatsTextsExtractor to the pandas dataframe prior to writing to the disc'''
+    speciesDF.loc[speciesCounter, 'tt'] = threatsText
+    return speciesDF
+
 def threatsAndStressesExtractor(speciesSoup):
     '''This function returns the threats and stresses which contain the stresses and threats of each species'''
     speciesThreatsAndStresses = []
@@ -148,6 +159,12 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Here we plot binary transformations under the corresponding threats/stresses column of the pandas dataframe for each species'''
     speciesDF = threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses)
+
+    '''Scrapping the threats text box here'''
+    threatsText = threatsTextsExtractor(speciesSoup)
+    
+    '''Plotting the threats text here'''
+    speciesDF = threatsTextsPlotter(speciesDF, speciesCounter, threatsText)
 
     '''Writing a .csv dumper here so that we can check the output after each run'''
     csvDumper(speciesFile, speciesDF)

@@ -16,6 +16,8 @@ def fileReader(csvFile):
 def columnTweaker(speciesDF):
     '''Here we take the speciesDF and extract the columns and lower the name of the individual elements'''
     threatsAndStressesColumn = [column.lower() for column in speciesDF.columns]
+    '''Replacing the entire column headings with a lowerscript version to ensure pattern matching  while scrapping the website'''
+    speciesDF.columns = threatsAndStressesColumn
     return threatsAndStressesColumn
 
 def dataPorter(speciesDF):

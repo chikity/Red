@@ -7,10 +7,18 @@ Check out the larger project at https://github.com/SarthakJShetty/Red
 
 '''Reading the csv file as a pandas dataframe and port over the entire column as a list.'''
 import pandas as pd
+import os
 
-def fileReader(csvFile):
+def fileReader(speciesFile):
     '''This function reads the csvFile and sends it over to the scraper'''
-    speciesDF = pd.read_csv(csvFile)
+    
+    '''This clause is required so that the data is not overwritten everytime the code shuts off and restarts'''
+    if(os.path.exists(speciesFile.split('.')[0]+'_WORKING'+'.csv')):
+        csvFile = speciesFile.split('.')[0]+'_WORKING'+'.csv'
+    else:
+        csvFile = speciesFile
+    '''Pandas has a memory issue when dealing with lot of columns (117) in this case. Helps if you specify the data-type of the unique columns'''
+    speciesDF = pd.read_csv(csvFile, dtype={'species':str, 'tt':str})
     return speciesDF
 
 def columnTweaker(speciesDF):

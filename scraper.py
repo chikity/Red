@@ -21,7 +21,7 @@ homeURL = 'https://www.iucnredlist.org'
 speciesDf = fileReader(speciesFile)
 
 '''Grabbing the number and the entire list of species in a given .csv file'''
-numberOfSpecies, listOfSpecies = dataPorter(speciesDf)
+numberOfSpecies, listOfSpecies, threatsAndStressesColumns = dataPorter(speciesDf)
 
 def urlTweaker(speciesName, homeURL):
     '''This function takes the species name, lysis it and appends it to the home URL for scrapping'''
@@ -29,35 +29,62 @@ def urlTweaker(speciesName, homeURL):
     urlPostElement = "&searchType=species"
     speciesNameElements = speciesName.split(' ')
     speciesSearchURL = urlPreElement + speciesNameElements[0]+'%20'+speciesNameElements[1]+urlPostElement
+    print('[INFO] Currently looking at search URL:' + speciesSearchURL)
     return speciesSearchURL
 
 def speciesURLExtractor(searchSoup, homeURL):
     '''From the search page of the species, we collect the URL which will lead us to the species database'''
     speciesURL = searchSoup.find('a', {'class':'link--faux'}).get('href')
     speciesURL = homeURL + speciesURL
-    print(speciesURL)
+    print('[INFO] Currently looking at species URL:' + speciesURL)
     return speciesURL
+
+def threatsAndStressesExtractor(speciesSoup):
+    '''This function returns the threats and stresses which contain the stresses and threats of each species'''
+    speciesThreatsAndStresses = []
+    tdElements= speciesSoup.findAll('td')
+    for tdElement in tdElements:
+        if(tdElement.text):
+            speciesThreatsAndStresses.append(tdElement.text)
+    '''Lowering all the threats and stresses to carry out pattern matching with the '''
+    speciesThreatsAndStresses = [speciesThreatsAndStress.lower() for speciesThreatsAndStress in speciesThreatsAndStresses]
+    return speciesThreatsAndStresses
+
+def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns):
+    '''This function checks if any of the Threats and Stresses specific to the species match up with any of the column stresses/threats.
+    Using set theory here to return the intersection of the two lists and use the elements to plot binary shifts under the corresponding'''
+    speciesThreatsAndStressesSet = set(speciesThreatsAndStresses)
+    threatsAndStressesColumnsSet = set(threatsAndStressesColumns)
+    return list(speciesThreatsAndStressesSet.intersection(threatsAndStressesColumnsSet))
+
+def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
+    '''Finally! We plot the threats and stresses observed on the dataframe for the corresponding species and column'''
+    for threatsAndStress in threatsAndStresses:
+        speciesDF.loc[speciesCounter, threatsAndStress] = 1
+    speciesDF.to_csv('hello.csv')
 
 def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 
     Selenium middleware will operate on.'''
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-
+    # chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--no-sandbox')
+    # chrome_options.add_argument('--disable-dev-shm-usage')
     browser = webdriver.Chrome(chrome_options=chrome_options)
     browser.get(homeURL)
+    print('[INFO] Initializing browser instance')
     return browser
 
 def htmlExtractor(browser):
     '''Pings the browser and returns the HTML code to be used by the rest of the functions lying within the for loop below'''
     htmlCode = browser.page_source
+    print('[INFO] Extracting the HTML code')
     return htmlCode
 
 def pageSouper(htmlCode):
     '''This function soups the HTML code to make it searchable by the individual modules of code'''
     pageSoup = bs(htmlCode, 'html.parser')
+    print('[INFO] Souping the page')
     return pageSoup
 
 '''Need this counter to keep track of which species on the list is being accessed at the moment.
@@ -81,7 +108,6 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Using the species name to arrive at the URL to ping the browser'''
     speciesSearchURL = urlTweaker(speciesName, homeURL)
-
 
     '''Invoking the search results page here using the browser'''
     browser.get(speciesSearchURL)
@@ -109,6 +135,15 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Souping the page!'''
     speciesSoup = pageSouper(htmlCode)
+
+    '''Grabbing the td_elements which contains all the threats and stresses'''
+    speciesThreatsAndStresses = threatsAndStressesExtractor(speciesSoup)
+
+    '''Here, we check if the speciesThreatsAndStresses match the columns in the pandas dataframe'''
+    threatsAndStresses = threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns)
+
+    '''Here we plot binary transformations under the corresponding threats/stresses column of the pandas dataframe for each species'''
+    threatsAndStressesPlotter(speciesDf, speciesCounter, threatsAndStresses)
 
     '''Appennding the species counter to go to the next species on the list, in case the code breaksdown prematurely'''
     speciesCounter += 1

@@ -13,6 +13,11 @@ def fileReader(csvFile):
     speciesDF = pd.read_csv(csvFile)
     return speciesDF
 
+def columnTweaker(speciesDF):
+    '''Here we take the speciesDF and extract the columns and lower the name of the individual elements'''
+    threatsAndStressesColumn = [column.lower() for column in speciesDF.columns]
+    return threatsAndStressesColumn
+
 def dataPorter(speciesDF):
     '''This function ports the species column of the .csv file to a list and sends it over to the scraper'''
     listOfSpecies = []
@@ -22,5 +27,7 @@ def dataPorter(speciesDF):
     for element in (speciesDF['species']):
         listOfSpecies.append(element)
         numberOfSpecies += 1
+    '''Extracting the columns and lowercasing all the elements'''
+    threatsAndStressesColumn = columnTweaker(speciesDF)
     '''Returning the list of species and number of species'''
-    return numberOfSpecies, listOfSpecies
+    return numberOfSpecies, listOfSpecies, threatsAndStressesColumn

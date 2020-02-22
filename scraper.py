@@ -8,6 +8,7 @@ The eventual goal is to interface this code to a script communicating with the G
 
 import time
 from bs4 import BeautifulSoup as bs
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from interface import fileReader, dataPorter
@@ -83,7 +84,7 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
 
 def populationTrendChecker(speciesSoup):
     '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
-    populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or 'Unknown') 
+    populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or speciesSoup.find('a', {'href':'/search?searchType=species'}))
     return populationTrend.text
 
 def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
@@ -94,6 +95,17 @@ def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
 def csvDumper(speciesFile, speciesDF):
     '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
     speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv', index=False)
+
+def browserPinger(browser, speciesURL):
+    '''This function pings the website before scrapping. Using this as a fork of browserInitializer because we need to refresh the browser
+    instance when it times out.'''
+    try:
+        browser.get(speciesURL)
+        return browser
+    except(TimeoutException):
+        '''Repeated TimeOut exceptions, so we want to include this line.'''
+        browser.refresh()
+        return browser
 
 def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 
@@ -121,7 +133,7 @@ def pageSouper(htmlCode):
 
 '''Need this counter to keep track of which species on the list is being accessed at the moment.
 In case the code shutsdown in between the scrapping, we don't want to start from scratch.'''
-speciesCounter = 0
+speciesCounter = 75
 
 '''Generating the browser instance here'''
 browser = browserInitializer(homeURL)
@@ -142,7 +154,7 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     speciesSearchURL = urlTweaker(speciesName, speciesCounter, homeURL)
 
     '''Invoking the search results page here using the browser'''
-    browser.get(speciesSearchURL)
+    browserPinger(browser, speciesSearchURL)
 
     '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
     time.sleep(5)
@@ -155,9 +167,9 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''From the search result of the species we collect the URL which will direct us to the species database'''
     speciesURL = speciesURLExtractor(searchSoup, homeURL)
-    
+
     '''Here, we get the page containing all the information of a specific species'''
-    browser.get(speciesURL)
+    browserPinger(browser, speciesURL)
 
     '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
     time.sleep(5)
@@ -179,7 +191,7 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Scrapping the threats text box here'''
     threatsText = threatsTextsExtractor(speciesSoup)
-    
+
     '''Plotting the threats text here'''
     speciesDF = threatsTextsPlotter(speciesDF, speciesCounter, threatsText)
 

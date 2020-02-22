@@ -23,13 +23,13 @@ speciesDF = fileReader(speciesFile)
 '''Grabbing the number and the entire list of species in a given .csv file'''
 numberOfSpecies, listOfSpecies, threatsAndStressesColumns = dataPorter(speciesDF)
 
-def urlTweaker(speciesName, homeURL):
+def urlTweaker(speciesName, speciesCounter, homeURL):
     '''This function takes the species name, lysis it and appends it to the home URL for scrapping'''
     urlPreElement = "https://www.iucnredlist.org/search?query="
     urlPostElement = "&searchType=species"
     speciesNameElements = speciesName.split(' ')
     speciesSearchURL = urlPreElement + speciesNameElements[0]+'%20'+speciesNameElements[1]+urlPostElement
-    print('[INFO] Currently looking at search URL:' + speciesSearchURL)
+    print('[INFO]'+' Species Number: '+str(speciesCounter+1)+'\n[INFO] Species Name: '+speciesName+'\n[INFO] Currently looking at search URL:' + speciesSearchURL)
     return speciesSearchURL
 
 def speciesURLExtractor(searchSoup, homeURL):
@@ -139,7 +139,7 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     speciesName = speciesDF.loc[speciesCounter, 'species']
 
     '''Using the species name to arrive at the URL to ping the browser'''
-    speciesSearchURL = urlTweaker(speciesName, homeURL)
+    speciesSearchURL = urlTweaker(speciesName, speciesCounter, homeURL)
 
     '''Invoking the search results page here using the browser'''
     browser.get(speciesSearchURL)

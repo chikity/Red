@@ -42,8 +42,11 @@ def speciesURLExtractor(searchSoup, homeURL):
 def threatsTextsExtractor(speciesSoup):
     '''This function returns the text of the threats faced by each of the species'''
     threatsCards = speciesSoup.findAll('div', {'id':'threats-details'})
-    for threatsCard in threatsCards:
-        return threatsCard.findAll('div', {'class':'text-body'})[0].text
+    if threatsCards:
+        for threatsCard in threatsCards:
+            return threatsCard.findAll('div', {'class':'text-body'})[0].text
+    else:
+        pass
 
 def threatsTextsPlotter(speciesDF, speciesCounter, threatsText):
     '''Writing the text extracted by the threatsTextsExtractor to the pandas dataframe prior to writing to the disc'''
@@ -59,7 +62,11 @@ def threatsAndStressesExtractor(speciesSoup):
             speciesThreatsAndStresses.append(tdElement.text)
     '''Lowering all the threats and stresses to carry out pattern matching with the '''
     speciesThreatsAndStresses = [speciesThreatsAndStress.lower() for speciesThreatsAndStress in speciesThreatsAndStresses]
-    return speciesThreatsAndStresses
+    if(speciesThreatsAndStresses):
+       return speciesThreatsAndStresses
+    else:
+        '''Incase no threats are found for the given species'''
+        pass
 
 def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns):
     '''This function checks if any of the Threats and Stresses specific to the species match up with any of the column stresses/threats.
@@ -95,7 +102,7 @@ def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
 
 def csvDumper(speciesFile, speciesDF):
     '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
-    speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv')
+    speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv', index=False)
 
 def browserInitializer(homeURL):
     '''Initializing the browser on which the rest of the pipeline will operate on. Also initializes the set of options in which the 

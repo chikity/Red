@@ -83,17 +83,8 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
 
 def populationTrendChecker(speciesSoup):
     '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
-    if (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'})):
-        return speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}).text
-    elif(speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'})):
-        return speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}).text
-    elif(speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'})):
-        return speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}).text
-    elif(speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'})):
-        return speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}).text
-    else:
-        '''We're returning Unknown here if nothing is know about the species under the population trends'''
-        return 'Unknown'
+    populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or 'Unknown') 
+    return populationTrend.text
 
 def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
     '''Plotting the data on the speciesDF'''

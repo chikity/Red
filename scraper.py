@@ -74,6 +74,25 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
         speciesDF.loc[speciesCounter, threatsAndStress] = 1
     return speciesDF
 
+def populationTrendChecker(speciesSoup):
+    '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
+    if (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'})):
+        return speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}).text
+    elif(speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'})):
+        return speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}).text
+    elif(speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'})):
+        return speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}).text
+    elif(speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'})):
+        return speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}).text
+    else:
+        '''We're returning Unknown here if nothing is know about the species under the population trends'''
+        return 'Unknown'
+
+def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
+    '''Plotting the data on the speciesDF'''
+    speciesDF.loc[speciesCounter, populationTrend.lower()[0]] = 1
+    return speciesDF
+
 def csvDumper(speciesFile, speciesDF):
     '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
     speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv')
@@ -165,6 +184,12 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     
     '''Plotting the threats text here'''
     speciesDF = threatsTextsPlotter(speciesDF, speciesCounter, threatsText)
+
+    '''Here, we scrape the population trend of the species'''
+    populationTrend = populationTrendChecker(speciesSoup)
+
+    '''Here, we plot the population trend'''
+    speciesDF = populationTrendPlotter(speciesDF, speciesCounter, populationTrend)
 
     '''Writing a .csv dumper here so that we can check the output after each run'''
     csvDumper(speciesFile, speciesDF)

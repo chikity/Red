@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup as bs
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from interface import fileReader, dataPorter
+from interface import fileReader, dataPorter, lastSpeciesChecker
 
 '''Specifying the species file that is being read by the script'''
 speciesFile = 'data/birds.csv'
@@ -30,7 +30,7 @@ def urlTweaker(speciesName, speciesCounter, homeURL):
     urlPostElement = "&searchType=species"
     speciesNameElements = speciesName.split(' ')
     speciesSearchURL = urlPreElement + speciesNameElements[0]+'%20'+speciesNameElements[1]+urlPostElement
-    print('[INFO]'+' Species Number: '+str(speciesCounter+1)+'\n[INFO] Species Name: '+speciesName+'\n[INFO] Currently looking at search URL:' + speciesSearchURL)
+    print('[INFO]'+' Species Number: '+str(speciesCounter+1)+'\n[INFO] Species Name: '+speciesName+'\n[INFO] Currently looking at search URL: ' + speciesSearchURL)
     return speciesSearchURL
 
 def speciesURLExtractor(searchSoup, homeURL):
@@ -133,7 +133,7 @@ def pageSouper(htmlCode):
 
 '''Need this counter to keep track of which species on the list is being accessed at the moment.
 In case the code shutsdown in between the scrapping, we don't want to start from scratch.'''
-speciesCounter = 75
+speciesCounter = lastSpeciesChecker(speciesDF)
 
 '''Generating the browser instance here'''
 browser = browserInitializer(homeURL)

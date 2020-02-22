@@ -28,6 +28,23 @@ def columnTweaker(speciesDF):
     speciesDF.columns = threatsAndStressesColumn
     return threatsAndStressesColumn
 
+def lastSpeciesChecker(speciesDF):
+    '''We want to check the last scrapped species and return it to the scraper to avoid manually changing it in the code'''
+    '''Indexing starts from 0, hence we subtract 1 from the length of the dataframe'''
+    speciesCounter = (len(speciesDF)-1)
+    
+    '''We start from the reverse, because if we start from the top some species may have 0 status for all population trends. If we approach
+    the dataframe from the reverse direction, we get the latest species for whom the data has not been tabulated yet, indicating the last species scrapped.'''
+    while speciesCounter > 0:
+        '''If any of the population trend parameters have a value stored in them, then return the corresponding speciesCounter, indicating last scrapped species'''
+        if(speciesDF.loc[speciesCounter, 'd'] or speciesDF.loc[speciesCounter, 's'] or speciesDF.loc[speciesCounter, 'u'] or speciesDF.loc[speciesCounter, 'i']):
+            '''If the previous condition is satisfied return the speciesCounter currently under cycle'''
+            return speciesCounter
+            speciesCounter = 0
+        else:
+            '''If condition is not satisfied, go to the previous row'''
+            speciesCounter-=1
+
 def dataPorter(speciesDF):
     '''This function ports the species column of the .csv file to a list and sends it over to the scraper'''
     listOfSpecies = []

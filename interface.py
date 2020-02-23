@@ -45,6 +45,10 @@ def lastSpeciesChecker(speciesDF):
             '''If condition is not satisfied, go to the previous row'''
             speciesCounter-=1
 
+def csvDumper(speciesFile, speciesDF):
+    '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
+    speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv', index=False)
+
 def dataPorter(speciesDF):
     '''This function ports the species column of the .csv file to a list and sends it over to the scraper'''
     listOfSpecies = []

@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup as bs
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from interface import fileReader, dataPorter, lastSpeciesChecker
+from interface import fileReader, dataPorter, csvDumper, lastSpeciesChecker
 
 '''Specifying the species file that is being read by the script'''
 speciesFile = 'data/birds.csv'
@@ -91,10 +91,6 @@ def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
     '''Plotting the data on the speciesDF'''
     speciesDF.loc[speciesCounter, populationTrend.lower()[0]] = 1
     return speciesDF
-
-def csvDumper(speciesFile, speciesDF):
-    '''This function utilizes the pandas functionality, to_csv() to dump the dataframe, for analysis and posteriety'''
-    speciesDF.to_csv(speciesFile.split('.')[0]+'_WORKING'+'.csv', index=False)
 
 def browserPinger(browser, speciesURL):
     '''This function pings the website before scrapping. Using this as a fork of browserInitializer because we need to refresh the browser

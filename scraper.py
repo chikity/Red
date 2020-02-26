@@ -72,9 +72,12 @@ def threatsAndStressesExtractor(speciesSoup):
 def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns):
     '''This function checks if any of the Threats and Stresses specific to the species match up with any of the column stresses/threats.
     Using set theory here to return the intersection of the two lists and use the elements to plot binary shifts under the corresponding'''
-    speciesThreatsAndStressesSet = set(speciesThreatsAndStresses)
-    threatsAndStressesColumnsSet = set(threatsAndStressesColumns)
-    return list(speciesThreatsAndStressesSet.intersection(threatsAndStressesColumnsSet))
+    if(speciesThreatsAndStresses):
+        speciesThreatsAndStressesSet = set(speciesThreatsAndStresses)
+        threatsAndStressesColumnsSet = set(threatsAndStressesColumns)
+        return list(speciesThreatsAndStressesSet.intersection(threatsAndStressesColumnsSet))
+    else:
+        return []
 
 def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
     '''Finally! We plot the threats and stresses observed on the dataframe for the corresponding species and column'''
@@ -85,7 +88,10 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
 def populationTrendChecker(speciesSoup):
     '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
     populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or speciesSoup.find('a', {'href':'/search?searchType=species'}))
-    return populationTrend.text
+    if(populationTrend.text):
+        return populationTrend.text
+    else:
+        return 'Unknown'
 
 def populationTrendPlotter(speciesDF, speciesCounter, populationTrend):
     '''Plotting the data on the speciesDF'''

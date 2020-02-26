@@ -35,9 +35,9 @@ def lastSpeciesChecker(speciesDF):
     
     '''We start from the reverse, because if we start from the top some species may have 0 status for all population trends. If we approach
     the dataframe from the reverse direction, we get the latest species for whom the data has not been tabulated yet, indicating the last species scrapped.'''
-    while speciesCounter > 0:
+    while speciesCounter >= 0:
         '''If any of the population trend parameters have a value stored in them, then return the corresponding speciesCounter, indicating last scrapped species'''
-        if(speciesDF.loc[speciesCounter, 'd'] or speciesDF.loc[speciesCounter, 's'] or speciesDF.loc[speciesCounter, 'u'] or speciesDF.loc[speciesCounter, 'i']):
+        if(speciesDF.loc[speciesCounter, 'd'] or speciesDF.loc[speciesCounter, 's'] or speciesDF.loc[speciesCounter, 'u'] or speciesDF.loc[speciesCounter, 'i'] or (speciesCounter==0)):
             '''If the previous condition is satisfied return the speciesCounter currently under cycle'''
             return speciesCounter
             speciesCounter = 0

@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from interface import fileReader, dataPorter, csvDumper, lastSpeciesChecker
 
 '''Specifying the species file that is being read by the script'''
-speciesFile = 'data/mammals.csv'
+speciesFile = 'data/birds.csv'
 '''This is the home URL that will be used as a starting point for the scrape to start'''
 homeURL = 'https://www.iucnredlist.org'
 
@@ -136,7 +136,7 @@ def pageSouper(htmlCode):
 '''Need this counter to keep track of which species on the list is being accessed at the moment.
 In case the code shutsdown in between the scrapping, we don't want to start from scratch.
 We increment by 1 since the interface script returns an index that begins with (len(speciesDF) - 1).'''
-speciesCounter = lastSpeciesChecker(speciesDF) + 1
+speciesCounter = lastSpeciesChecker(speciesDF)
 
 '''Generating the browser instance here'''
 browser = browserInitializer(homeURL)

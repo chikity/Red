@@ -81,7 +81,7 @@ def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColum
     if(speciesThreatsAndStresses):
         for speciesThreatsAndStress in speciesThreatsAndStresses:
             if(len(speciesThreatsAndStress.split(" "))>1):
-            '''Only if a stress has a numerical and an accompanying phrase, split it for truncation'''
+                '''Only if a stress has a numerical and an accompanying phrase, split it for truncation'''
                 speciesThreatsAndStressesTruncated.append(speciesThreatsAndStress.split(" ")[0]+" "+speciesThreatsAndStress.split(" ")[1])
         for threatsAndStressesColumn in threatsAndStressesColumns:
             if(len(threatsAndStressesColumn.split(" "))>1):

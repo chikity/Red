@@ -72,10 +72,31 @@ def threatsAndStressesExtractor(speciesSoup):
 def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColumns):
     '''This function checks if any of the Threats and Stresses specific to the species match up with any of the column stresses/threats.
     Using set theory here to return the intersection of the two lists and use the elements to plot binary shifts under the corresponding'''
+    speciesThreatsAndStressesTruncated = []
+    threatsAndStressesColumnsTruncated = []
+    threatsAndStresses= []
+    commonThreats = []
+
+    '''If threats are returned from the main script, enter this loop'''
     if(speciesThreatsAndStresses):
-        speciesThreatsAndStressesSet = set(speciesThreatsAndStresses)
-        threatsAndStressesColumnsSet = set(threatsAndStressesColumns)
-        return list(speciesThreatsAndStressesSet.intersection(threatsAndStressesColumnsSet))
+        for speciesThreatsAndStress in speciesThreatsAndStresses:
+            if(len(speciesThreatsAndStress.split(" "))>1):
+            '''Only if a stress has a numerical and an accompanying phrase, split it for truncation'''
+                speciesThreatsAndStressesTruncated.append(speciesThreatsAndStress.split(" ")[0]+" "+speciesThreatsAndStress.split(" ")[1])
+        for threatsAndStressesColumn in threatsAndStressesColumns:
+            if(len(threatsAndStressesColumn.split(" "))>1):
+                '''Truncating and storing the column members here as wells'''
+                threatsAndStressesColumnsTruncated.append(threatsAndStressesColumn.split(" ")[0]+" "+threatsAndStressesColumn.split(" ")[1])
+            else:
+                '''This loop is required to ensure indices are consistent between the truncated column and the main column below'''
+                threatsAndStressesColumnsTruncated.append(threatsAndStressesColumn)
+        '''Here, we check common elements between the truncated threats and column'''
+        commonThreats = list(set(threatsAndStressesColumnsTruncated).intersection(set(speciesThreatsAndStressesTruncated)))
+        for commonThreat in commonThreats:
+            '''Appending a new list and sending it over to the main code after checking indices between truncated column and stresses'''
+            threatsAndStresses.append(threatsAndStressesColumns[threatsAndStressesColumnsTruncated.index(commonThreat)])
+        '''Returning the detected stresses'''
+        return threatsAndStresses
     else:
         return []
 

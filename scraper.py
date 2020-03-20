@@ -76,7 +76,6 @@ def threatsAndStressesChecker(speciesThreatsAndStresses, threatsAndStressesColum
     threatsAndStressesColumnsTruncated = []
     threatsAndStresses= []
     commonThreats = []
-
     '''If threats are returned from the main script, enter this loop'''
     if(speciesThreatsAndStresses):
         for speciesThreatsAndStress in speciesThreatsAndStresses:

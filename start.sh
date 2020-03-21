@@ -7,4 +7,5 @@ or delay in souping the page
 while :
     do
         python3 scraper.py
+	pkill chrome
 done

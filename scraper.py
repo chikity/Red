@@ -105,6 +105,22 @@ def threatsAndStressesPlotter(speciesDF, speciesCounter, threatsAndStresses):
         speciesDF.loc[speciesCounter, threatsAndStress] = 1
     return speciesDF
 
+def assessmentChecker(speciesSoup):
+    '''This function checks the assessment status of the given species and returns it to the main function'''
+    assessmentInformation = (speciesSoup.find('a', {'href':'/search?redListCategory=ex&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=ew&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=re&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=cr&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=en&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=vu&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=lr&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=nt&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=lc&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=dd&searchType=species'}) or speciesSoup.find('a', {'href':'/search?redListCategory=na&searchType=species'}))
+    if(assessmentInformation):
+        return assessmentInformation.text
+    else:
+        return 'Data Deficient'
+
+def assessmentPlotter(speciesDF, speciesCounter, assessmentInformation):
+    '''This function plots the assessment information on the speciesDF'''
+    if((assessmentInformation.split(" ")[0].lower()[:2] == 'ex') and (len(assessmentInformation.split(" "))>1)):
+        speciesDF.loc[speciesCounter, 'ew'] = 1
+    else:
+        speciesDF.loc[speciesCounter, assessmentInformation.split(" ")[0].lower()[:2]] = 1
+    return speciesDF
+
 def populationTrendChecker(speciesSoup):
     '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
     populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or speciesSoup.find('a', {'href':'/search?searchType=species'}))
@@ -221,8 +237,14 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     '''Here, we scrape the population trend of the species'''
     populationTrend = populationTrendChecker(speciesSoup)
 
-    '''Here, we plot the population trend'''
+    '''Here, we plot the population trend on the dataframe'''
     speciesDF = populationTrendPlotter(speciesDF, speciesCounter, populationTrend)
+
+    '''Here, we scrape the assessment information of the species'''
+    assessmentInformation = assessmentChecker(speciesSoup)
+
+    '''Here, we plot the assessment information on the dataframe'''
+    speciesDF = assessmentPlotter(speciesDF, speciesCounter, assessmentInformation)
 
     '''Writing a .csv dumper here so that we can check the output after each run'''
     csvDumper(speciesFile, speciesDF)

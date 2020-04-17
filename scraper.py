@@ -121,6 +121,23 @@ def assessmentPlotter(speciesDF, speciesCounter, assessmentInformation):
         speciesDF.loc[speciesCounter, assessmentInformation.split(" ")[0].lower()[:2]] = 1
     return speciesDF
 
+def habitatSystemChecker(speciesSoup):
+    '''This function scrapes the habitat system of the species. Any combination of the three: 1. Terrestrial, 2. Marine, 3. Freshwater'''
+    habitatTags = ['/search?systems=0&searchType=species', '/search?systems=1&searchType=species', '/search?systems=2&searchType=species']
+    habitats = []
+    for habitatTag in habitatTags:
+        '''We use this loop to collect the habitat tags of a given species.
+        We check if the species possess a possible tag and append the list of habitats to be returned.'''
+        if(speciesSoup.find('a', {'href':habitatTag})):
+            habitats.append(speciesSoup.find('a', {'href':habitatTag}).text)
+    return habitats
+
+def habitatSystemplotter(speciesDF, speciesCounter, habitats):
+    '''Plotting the species habitat system of the species on the dataframe'''
+    for habitat in habitats:
+        speciesDF.loc[speciesCounter, habitat.lower()] = 1
+    return speciesDF
+
 def populationTrendChecker(speciesSoup):
     '''This function checks if the population is: 1. Increasing, or 2. Decreasing, or 3. Stable, or 4. Unknown'''
     populationTrend = (speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=0&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=1&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=2&searchType=species'}) or speciesSoup.find('a', {'href':'/search?populationTrend=3&searchType=species'}) or speciesSoup.find('a', {'href':'/search?searchType=species'}))
@@ -178,12 +195,6 @@ speciesCounter = lastSpeciesChecker(speciesDF)
 browser = browserInitializer(homeURL)
 
 for speciesCounter in range(speciesCounter, numberOfSpecies):
-    '''Additional functions to be used here:
-    1. A function that takes the string of the species name and cuts it up, appends it to the homeURL
-    2. A browser pinger which takes this URL, pings it and returns the page.
-    3. A function to reduce the page to its bare HTML.
-    4. A function which extracts the required element(s) from the HTML code. One for each element to be scrapped.
-    5. A CSV dumper to dump the elements to the disc.'''
 
     '''Here, we collect the name of the species for which the data has to be scrapped. We then pass this name onto the urlTweaker to insert it into the 
     default IUCN website URL.'''
@@ -239,6 +250,12 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Here, we plot the population trend on the dataframe'''
     speciesDF = populationTrendPlotter(speciesDF, speciesCounter, populationTrend)
+
+    '''Here, we grab the habitat information of the species'''
+    habitats = habitatSystemChecker(speciesSoup)
+
+    '''We take the habitat(s) and plot it on the dataframe'''
+    speciesDF = habitatSystemplotter(speciesDF, speciesCounter, habitats)
 
     '''Here, we scrape the assessment information of the species'''
     assessmentInformation = assessmentChecker(speciesSoup)

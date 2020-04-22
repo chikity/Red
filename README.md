@@ -1,6 +1,6 @@
 # Red
 
-:warning: Code is buggy :warning:
+:warning: **Code is buggy** :warning:
 
 ## 1.0 Introduction:
 

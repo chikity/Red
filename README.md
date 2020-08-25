@@ -4,9 +4,9 @@
 
 ## 1.0 Introduction:
 
-+ The aim of the project is to analyze corelations between the threat status of a particular species tracked on the [IUCN Red List](https://www.iucnredlist.org/ "IUCN Red List"), and their threats and stresses.
++ The aim of the project is to analyze correlations between the threat status of a particular species tracked on the [IUCN Red List](https://www.iucnredlist.org/ "IUCN Red List"), and their threats and stresses.
 
-+ This repository is dedicated to the scrapping of the necessary datafields from the [IUCN Red List](https://www.iucnredlist.org/ "IUCN Red List") to prove such corelations.
++ This repository is dedicated to scrapping the necessary datafields from the [IUCN Red List](https://www.iucnredlist.org/ "IUCN Red List") to prove such correlations.
 
 + This project is a collaboration with [Uttara Mendiratta](https://www.researchgate.net/profile/Uttara_Mendiratta "Uttara") and [Anand M Ossuri](https://www.ncf-india.org/author/675623/anand-osuri-2 "Anand") from the [Nature Conservation Foundation, India](http://ncf-india.org/ "NCF-India").
 

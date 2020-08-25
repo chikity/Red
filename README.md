@@ -12,7 +12,7 @@
 
 ## 2.0 Implementation
 
-1. The [```birds.csv```](https://github.com/SarthakJShetty/Red/tree/master/data/birds.csv) and [```mammals.csv```]((https://github.com/SarthakJShetty/Red/tree/master/data/mammals.csv)) contain the species for which the data has to be scrapped.
+1. The [```birds.csv```](https://github.com/SarthakJShetty/Red/tree/master/data/birds.csv) and [```mammals.csv```](https://github.com/SarthakJShetty/Red/tree/master/data/mammals.csv) contain the species for which the data has to be scrapped.
 
 2. The permissions of the [```start.sh```](https://github.com/SarthakJShetty/Red/blob/master/start.sh) have to be changed before the first run of the code.
 

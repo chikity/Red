@@ -1,5 +1,4 @@
 *.code-workspace
 *.json
 *.pyc
-data/completed*
-data/*_WORKING.csv
+data/completed_*

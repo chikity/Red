@@ -132,10 +132,26 @@ def habitatSystemChecker(speciesSoup):
             habitats.append(speciesSoup.find('a', {'href':habitatTag}).text)
     return habitats
 
-def habitatSystemplotter(speciesDF, speciesCounter, habitats):
+def habitatSystemPlotter(speciesDF, speciesCounter, habitats):
     '''Plotting the species habitat system of the species on the dataframe'''
     for habitat in habitats:
         speciesDF.loc[speciesCounter, habitat.lower()] = 1
+    return speciesDF
+
+def generationLineChecker(speciesSoup):
+    '''This function checks if the species has a generation line specified'''
+    generationLine = "None"
+    '''This is the standard form of the p element that holds the generationLine data'''
+    preGenerationLines = speciesSoup.findAll('p', {'class':'card__data card__data--std card__data--accent'})
+    for preGenerationLine in preGenerationLines:
+        '''We cycle through each of the cookie-cutter p elements returned and look for the one with the generation line by checking if it has the string 'years' in it'''
+        if('years' in preGenerationLine.text):
+            generationLine = preGenerationLine.text
+    return generationLine
+
+def generationLinePlotter(speciesDF, speciesCounter, generationLine):
+    '''We plot the generation line data in the 'generation' column of the speciesDF'''
+    speciesDF.loc[speciesCounter, 'generation'] = generationLine
     return speciesDF
 
 def populationTrendChecker(speciesSoup):
@@ -255,7 +271,13 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
     habitats = habitatSystemChecker(speciesSoup)
 
     '''We take the habitat(s) and plot it on the dataframe'''
-    speciesDF = habitatSystemplotter(speciesDF, speciesCounter, habitats)
+    speciesDF = habitatSystemPlotter(speciesDF, speciesCounter, habitats)
+
+    '''Here, we scrape the generation line of each species'''
+    generationLine = generationLineChecker(speciesSoup)
+
+    '''Here, we plot the the generationLine of each species onto the dataframe'''
+    speciesDF = generationLinePlotter(speciesDF, speciesCounter, generationLine)
 
     '''Here, we scrape the assessment information of the species'''
     assessmentInformation = assessmentChecker(speciesSoup)

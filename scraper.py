@@ -39,12 +39,22 @@ def urlTweaker(speciesName, speciesCounter, homeURL):
 
 
 def speciesURLExtractor(searchSoup, homeURL):
-    '''From the search page of the species, we collect the URL which will lead us to the species database'''
-    speciesURL = searchSoup.find('a', {'class': 'link--faux'}).get('href')
-    speciesURL = homeURL + speciesURL
-    print('[INFO] Currently looking at species URL:' + speciesURL)
-    return speciesURL
+    if searchSoup.find('a', {'class': 'link--faux'}) is not None:
+        '''From the search page of the species, we collect the URL which will lead us to the species database'''
+        speciesURL = searchSoup.find('a', {'class': 'link--faux'}).get('href')
+        speciesURL = homeURL + speciesURL
+        print('[INFO] Currently looking at species URL:' + speciesURL)
+        return speciesURL
+    else:
+        print('[INFO] No results for species: ' + speciesName + '. Skipping')
 
+def checkSpeciesExist(searchSoup, homeURL):
+    if searchSoup.find('a', {'class': 'link--faux'}) is not None:
+        '''From the search page of the species, we collect the URL which will lead us to the species database'''
+        return True
+    else:
+        print('[INFO] No results for species: ' + speciesName + '. Skipping')
+        return False
 
 def threatsTextsExtractor(speciesSoup):
     '''This function returns the text of the threats faced by each of the species'''
@@ -261,68 +271,69 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Souping the HTML here to make it more readable and look for elements within'''
     searchSoup = pageSouper(htmlSearchCode)
+    if checkSpeciesExist(searchSoup, homeURL) == True:
+        '''From the search result of the species we collect the URL which will direct us to the species database'''
+        speciesURL = speciesURLExtractor(searchSoup, homeURL)
 
-    '''From the search result of the species we collect the URL which will direct us to the species database'''
-    speciesURL = speciesURLExtractor(searchSoup, homeURL)
+        '''Here, we get the page containing all the information of a specific species'''
+        browserPinger(browser, speciesURL)
 
-    '''Here, we get the page containing all the information of a specific species'''
-    browserPinger(browser, speciesURL)
+        '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
+        time.sleep(5)
 
-    '''Delaying the collection of code because the IUCN website takes time to respond to an incoming ping'''
-    time.sleep(5)
+        '''Now extracting the HTML of the page'''
+        htmlCode = htmlExtractor(browser)
 
-    '''Now extracting the HTML of the page'''
-    htmlCode = htmlExtractor(browser)
+        '''Souping the page!'''
+        speciesSoup = pageSouper(htmlCode)
 
-    '''Souping the page!'''
-    speciesSoup = pageSouper(htmlCode)
+        '''Grabbing the td_elements which contains all the threats and stresses'''
+        speciesThreatsAndStresses = threatsAndStressesExtractor(speciesSoup)
 
-    '''Grabbing the td_elements which contains all the threats and stresses'''
-    speciesThreatsAndStresses = threatsAndStressesExtractor(speciesSoup)
+        '''Here, we check if the speciesThreatsAndStresses match the columns in the pandas dataframe'''
+        threatsAndStresses = threatsAndStressesChecker(
+            speciesThreatsAndStresses, threatsAndStressesColumns)
 
-    '''Here, we check if the speciesThreatsAndStresses match the columns in the pandas dataframe'''
-    threatsAndStresses = threatsAndStressesChecker(
-        speciesThreatsAndStresses, threatsAndStressesColumns)
+        '''Here we plot binary transformations under the corresponding threats/stresses column of the pandas dataframe for each species'''
+        speciesDF = threatsAndStressesPlotter(
+            speciesDF, speciesCounter, threatsAndStresses)
 
-    '''Here we plot binary transformations under the corresponding threats/stresses column of the pandas dataframe for each species'''
-    speciesDF = threatsAndStressesPlotter(
-        speciesDF, speciesCounter, threatsAndStresses)
+        '''Scrapping the threats text box here'''
+        threatsText = threatsTextsExtractor(speciesSoup)
 
-    '''Scrapping the threats text box here'''
-    threatsText = threatsTextsExtractor(speciesSoup)
+        '''Plotting the threats text here'''
+        speciesDF = threatsTextsPlotter(speciesDF, speciesCounter, threatsText)
 
-    '''Plotting the threats text here'''
-    speciesDF = threatsTextsPlotter(speciesDF, speciesCounter, threatsText)
+        '''Here, we scrape the population trend of the species'''
+        populationTrend = populationTrendChecker(speciesSoup)
 
-    '''Here, we scrape the population trend of the species'''
-    populationTrend = populationTrendChecker(speciesSoup)
+        '''Here, we plot the population trend on the dataframe'''
+        speciesDF = populationTrendPlotter(
+            speciesDF, speciesCounter, populationTrend)
 
-    '''Here, we plot the population trend on the dataframe'''
-    speciesDF = populationTrendPlotter(
-        speciesDF, speciesCounter, populationTrend)
+        '''Here, we grab the habitat information of the species'''
+        habitats = habitatSystemChecker(speciesSoup)
 
-    '''Here, we grab the habitat information of the species'''
-    habitats = habitatSystemChecker(speciesSoup)
+        '''We take the habitat(s) and plot it on the dataframe'''
+        speciesDF = habitatSystemPlotter(speciesDF, speciesCounter, habitats)
 
-    '''We take the habitat(s) and plot it on the dataframe'''
-    speciesDF = habitatSystemPlotter(speciesDF, speciesCounter, habitats)
+        '''Here, we scrape the generation line of each species'''
+        generationLine = generationLineChecker(speciesSoup)
 
-    '''Here, we scrape the generation line of each species'''
-    generationLine = generationLineChecker(speciesSoup)
+        '''Here, we plot the the generationLine of each species onto the dataframe'''
+        speciesDF = generationLinePlotter(
+            speciesDF, speciesCounter, generationLine)
 
-    '''Here, we plot the the generationLine of each species onto the dataframe'''
-    speciesDF = generationLinePlotter(
-        speciesDF, speciesCounter, generationLine)
+        '''Here, we scrape the assessment information of the species'''
+        assessmentInformation = assessmentChecker(speciesSoup)
 
-    '''Here, we scrape the assessment information of the species'''
-    assessmentInformation = assessmentChecker(speciesSoup)
+        '''Here, we plot the assessment information on the dataframe'''
+        speciesDF = assessmentPlotter(
+            speciesDF, speciesCounter, assessmentInformation)
 
-    '''Here, we plot the assessment information on the dataframe'''
-    speciesDF = assessmentPlotter(
-        speciesDF, speciesCounter, assessmentInformation)
+        '''Writing a .csv dumper here so that we can check the output after each run'''
+        csvDumper(speciesFile, speciesDF)
 
-    '''Writing a .csv dumper here so that we can check the output after each run'''
-    csvDumper(speciesFile, speciesDF)
-
-    '''Appennding the species counter to go to the next species on the list, in case the code breaksdown prematurely'''
-    speciesCounter += 1
+        '''Appennding the species counter to go to the next species on the list, in case the code breaksdown prematurely'''
+        speciesCounter += 1
+    continue

@@ -2,3 +2,4 @@
 *.json
 *.pyc
 data/completed_*
+.idea

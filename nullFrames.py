@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-dataFile = 'data/mammals_WORKING.csv'
+dataFile = '/Users/chikityeung/Github/Red/data/original/hk_species_WORKING.csv'
 df = pd.read_csv(dataFile)
 df['DEFF'] = np.zeros(len(df), dtype=np.int16)
 nullCounter = 0

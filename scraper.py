@@ -39,18 +39,15 @@ def urlTweaker(speciesName, speciesCounter, homeURL):
 
 
 def speciesURLExtractor(searchSoup, homeURL):
-    if searchSoup.find('a', {'class': 'link--faux'}) is not None:
-        '''From the search page of the species, we collect the URL which will lead us to the species database'''
-        speciesURL = searchSoup.find('a', {'class': 'link--faux'}).get('href')
-        speciesURL = homeURL + speciesURL
-        print('[INFO] Currently looking at species URL:' + speciesURL)
-        return speciesURL
-    else:
-        print('[INFO] No results for species: ' + speciesName + '. Skipping')
+    '''From the search page of the species, we collect the URL which will lead us to the species database'''
+    speciesURL = searchSoup.find('a', {'class': 'link--faux'}).get('href')
+    speciesURL = homeURL + speciesURL
+    print('[INFO] Currently looking at species URL:' + speciesURL)
+    return speciesURL
 
 def checkSpeciesExist(searchSoup, homeURL):
+    '''Checks if the search returns any results and returns a bool'''
     if searchSoup.find('a', {'class': 'link--faux'}) is not None:
-        '''From the search page of the species, we collect the URL which will lead us to the species database'''
         return True
     else:
         print('[INFO] No results for species: ' + speciesName + '. Skipping')
@@ -271,6 +268,8 @@ for speciesCounter in range(speciesCounter, numberOfSpecies):
 
     '''Souping the HTML here to make it more readable and look for elements within'''
     searchSoup = pageSouper(htmlSearchCode)
+
+    '''Fix issue where scraping process breaks when search returns no results'''
     if checkSpeciesExist(searchSoup, homeURL) == True:
         '''From the search result of the species we collect the URL which will direct us to the species database'''
         speciesURL = speciesURLExtractor(searchSoup, homeURL)
